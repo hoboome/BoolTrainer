@@ -34,6 +34,11 @@ OPERATIONS = ["NOT", "AND", "OR", "XOR", "IMPL", "EQV", "NOR", "NAND", "(", ")"]
 OPERANDS = ["A", "B", "C", "D", "E", "0", "1"]
 
 
+def clean_expression(text):
+    """Убирает лишние пробелы: '( A  AND  B ) OR  NOT  C' -> '(A AND B) OR NOT C'."""
+    return " ".join(text.split()).replace("( ", "(").replace(" )", ")")
+
+
 class ConstructorView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -139,7 +144,7 @@ class ConstructorView(QWidget):
 
         table = build_truth_table(node)
         self.last_table = table
-        self.last_expression = " ".join(text.split())
+        self.last_expression = clean_expression(text)
         self._show_table(table)
         self._show_forms(table)
         result = minimize_table(table)
