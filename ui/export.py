@@ -18,7 +18,7 @@ def render_table_image(table, expression):
     x0 = (width - table_w) // 2
     y0 = MARGIN + TITLE_H
 
-    image = QImage(width, height, QImage.Format.Format_RGB32)
+    image = QImage(width, height, QImage.Format.Format_ARGB32)
     image.fill(QColor("white"))
     painter = QPainter(image)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
