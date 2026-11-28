@@ -65,3 +65,28 @@ def test_simplify_requires_real_simplification():
     longer = check_answer(task, "(A AND B) OR (A AND NOT B)")
     assert not longer.correct and "упростить" in longer.message
     assert not check_answer(task, "B").correct
+
+
+def _has_trivial_part(node):
+    """Есть ли подвыражение вида «X OP X» или «NOT X OP X» над одной переменной."""
+    if node[0] == "not":
+        return _has_trivial_part(node[1])
+    if node[0] != "bin":
+        return False
+    names = []
+    for child in (node[2], node[3]):
+        if child[0] == "var":
+            names.append(child[1])
+        elif child[0] == "not" and child[1][0] == "var":
+            names.append(child[1][1])
+    if len(names) == 2 and names[0] == names[1]:
+        return True
+    return _has_trivial_part(node[2]) or _has_trivial_part(node[3])
+
+
+def test_generated_expressions_have_no_trivial_parts():
+    rng = random.Random(2026)
+    for kind in TASK_KINDS:
+        for _ in range(300):
+            task = generate_task(kind, rng)
+            assert not _has_trivial_part(parse(task.expression)), task.expression

@@ -63,12 +63,27 @@ def _digits_phrase(n):
 
 # ---------- генерация ----------
 
+def _literal_name(node):
+    """Имя переменной, если узел — переменная или её отрицание, иначе None."""
+    if node[0] == "var":
+        return node[1]
+    if node[0] == "not" and node[1][0] == "var":
+        return node[1][1]
+    return None
+
+
 def _random_node(rng, names, depth):
     if depth == 0 or rng.random() < 0.2:
         leaf = ("var", rng.choice(names))
         return ("not", leaf) if rng.random() < 0.3 else leaf
     op = rng.choices(_OPS, _WEIGHTS)[0]
-    return ("bin", op, _random_node(rng, names, depth - 1), _random_node(rng, names, depth - 1))
+    for _ in range(20):
+        left = _random_node(rng, names, depth - 1)
+        right = _random_node(rng, names, depth - 1)
+        same_variable = _literal_name(left) is not None and _literal_name(left) == _literal_name(right)
+        if left != right and not same_variable:
+            break
+    return ("bin", op, left, right)
 
 
 def random_expression(rng, n_vars, depth):
